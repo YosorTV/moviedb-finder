@@ -42,7 +42,7 @@ const debounce = (func, delay) => {
 const getMovies = async (key, page) => {
 	try {
 		showLoader(false);
-		const response = await fetch(`${API_DISCOVER_URL}/?api_key=${key}&page=${page}`);
+		const response = await fetch(`${API_DISCOVER_URL}?api_key=${key}&page=${page}`);
 		const data = await response.json();
 			renderUi(data);
 			attachPaginationHandlers(paginate);
