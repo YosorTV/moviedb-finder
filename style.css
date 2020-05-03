@@ -176,7 +176,9 @@ header {
 	box-shadow: 2px 4px 15px 1px rgba(0, 0, 0, .4);
 	transition: background .5s linear;
 }
-
+header:hover{
+	background: rgba(8, 8, 8, 0.95)
+}
 .sticky-effect{
 	background: rgba(8, 8, 8, 0.95);
 }
@@ -212,4 +214,78 @@ input[type=search] {
 
 input[type=search]:focus{
 	background: rgba(8, 8, 8, 0.6);
+}
+
+aside {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	position: absolute;
+	font-size: 20px;
+	color: #46c0c4;
+	background: rgba(8, 8, 8, 0.5);
+	box-shadow: 2px 4px 15px 1px rgba(0, 0, 0, .4);
+	height: 100vh;
+	width: 14rem;
+	transition: all .5s ease-in-out;
+	padding-left: 1rem;
+}
+
+label:hover input ~ .checkmark {
+  background-color: rgba(204, 204, 204, 0.5);
+}
+
+label input:checked ~ .checkmark {
+  background-color: #77c9ad;
+}
+
+input[type=checkbox] {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.checkmark{
+	position: relative;
+  height: 15px;
+  width: 15px;
+  background-color:rgba(8, 8, 8, 0.3);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+label input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+label .checkmark:after {
+	left: 4px;
+	top: 0px;
+	width: 5px;
+	height: 9px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.wrapper{
+	position: sticky;
+	top: 8vh;
+	z-index: 1;
+}
+
+label{
+	cursor: pointer;
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	align-items:baseline;
+	padding-right: 1rem;
 }

@@ -3,12 +3,15 @@ const API_KEY = '5b2df9a01c179a66af55f96a1e8cb829';
 const API_IMAGE_URL = 'https://image.tmdb.org/t/p/w300/';
 const API_SEARCH_URL = 'https://api.themoviedb.org/3/search/movie';
 const API_DISCOVER_URL = 'https://api.themoviedb.org/3/discover/movie';
+const API_DISCOVER_GENRE_URL = 'https://api.themoviedb.org/3/genre/movie/list';
+
 // ELEMENTS
 const pagination = document.querySelector('#pagination');
 const container = document.querySelector('#movies');
 const loader = document.querySelector('#loader');
 const header = document.querySelector('header');
 const inputSearch = document.querySelector('#search');
+const filters = document.querySelector('#filters');
 // event which open window with description
 document.addEventListener('click', ({ target }) => {
 	if(target.closest('p')) target.classList.toggle('show-overview');
@@ -17,10 +20,14 @@ document.addEventListener('click', ({ target }) => {
 window.addEventListener('scroll', () => {
 	if(this.scrollY == 100) {
 		header.classList.add('sticky-effect');
+		filters.classList.add('sticky-effect');
 	} else if (this.scrollY == 0) {
 		header.classList.remove('sticky-effect');
+		filters.classList.remove('sticky-effect');
 	}
 })
+
+const showLoader = bool => loader.hidden = bool;
 
 const debounce = (func, delay) => {
 	let inDebounce
@@ -33,25 +40,59 @@ const debounce = (func, delay) => {
 }
 // getting movies
 const getMovies = async (key, page) => {
-		loader.hidden = false;
 	try {
-		const response = await fetch(`${API_DISCOVER_URL}?api_key=${key}&page=${page}`);
+		showLoader(false);
+		const response = await fetch(`${API_DISCOVER_URL}/?api_key=${key}&page=${page}`);
 		const data = await response.json();
 			renderUi(data);
-			attachPaginationHandlers(pagination, paginate);
+			attachPaginationHandlers(paginate);
 		} catch (error) {
 				return `Caught an error: ${error}`
 		} finally {
-				return	loader.hidden = true;
-	}
+			showLoader(true);
+	};
+};
+// searching movies
+const getSearch = async (query, page = 1) => {
+	try{
+		if (!query) return;
+		showLoader(false);
+		const response = await fetch(`${API_SEARCH_URL}?api_key=${API_KEY}&query=${query}&page=${page}`);
+		const data = await response.json();
+		renderUi(data);
+		attachPaginationHandlers(function() {
+			paginateSearch.call(this, query)
+		});
+	} catch (error) {
+			return `Caught an error: ${error}`
+	}	finally {
+			showLoader(true);
+	};
+};
+
+const getFilters = async () => {
+	try{
+		showLoader(false);
+		const response = await fetch(`${API_DISCOVER_GENRE_URL}?api_key=${API_KEY}&language=en-En`);
+		const  { genres }  = await response.json();
+		renderFilters(genres, filters);
+	} catch (error) {
+			return `Caught an error: ${error}`
+	} finally {
+		showLoader(true);
+	};
 }
+
 // getting pagination
 function paginate () {
 	getMovies(API_KEY, this.dataset.page);
+};
+function paginateSearch(query){
+	getSearch(query, this.dataset.page);
 }
 // attach event on butt on
-function attachPaginationHandlers(wrapper, handler) {
-	const buttons = wrapper.querySelectorAll('button');
+function attachPaginationHandlers(handler) {
+	const buttons = pagination.querySelectorAll('button');
 	buttons.forEach(btn => btn.addEventListener('click', handler));
 }
 // rendering UI elements
@@ -78,24 +119,18 @@ function renderPagination(page = 1, total_pages, wrapper) {
 		<span>${page}</span>
 	<button type="button" class="${ page + 1 > total_pages ? 'disabled' : '' }" data-page="${ page + 1 }"><i class="fa fa-arrow-right"></i></button>`;
 };
+
+function renderFilters(data, wrapper) {
+	wrapper.innerHTML = data.map(({id, name }) => `
+			<label for="${id}">${name}
+				<input id="${id}" type="checkbox" value="${id}" />
+				<span class="checkmark"></span>
+			</label>
+		`,
+	).join('');
+};
 // Serching movies
-const search = async (query, page = 1) => {
-	try{
-		if (!query) return;
-		loader.hidden = false;
-		const response = await fetch(`${API_SEARCH_URL}?api_key=${API_KEY}&query=${query}&page=${page}`);
-		const data = await response.json();
-			renderUi(data);
-			attachPaginationHandlers(pagination, function () {
-				search(query, this.dataset.page)
-			});
-	} catch (error) {
-			return `Caught an error: ${error}`
-	}	finally {
-			return	loader.hidden = true;
-	}
-}
+inputSearch.addEventListener('input', debounce(({ target: { value } }) => getSearch(value), 250));
 
-inputSearch.addEventListener('input', debounce(({ target: { value } }) => search(value), 250));
-
+getFilters();
 getMovies(API_KEY);
