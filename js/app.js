@@ -18,7 +18,7 @@ document.addEventListener('click', ({ target }) => {
 });
 
 window.addEventListener('scroll', () => {
-	if(this.scrollY == 100) {
+	if(this.scrollY > 10 ) {
 		header.classList.add('sticky-effect');
 		filters.classList.add('sticky-effect');
 	} else if (this.scrollY == 0) {
@@ -26,6 +26,8 @@ window.addEventListener('scroll', () => {
 		filters.classList.remove('sticky-effect');
 	}
 })
+
+let filteredGeners = [];
 
 const showLoader = bool => loader.hidden = bool;
 
@@ -70,12 +72,13 @@ const getSearch = async (query, page = 1) => {
 	};
 };
 
-const getFilters = async () => {
+const getFilters = async (key) => {
 	try{
 		showLoader(false);
-		const response = await fetch(`${API_DISCOVER_GENRE_URL}?api_key=${API_KEY}&language=en-En`);
+		const response = await fetch(`${API_DISCOVER_GENRE_URL}?api_key=${key}&language=en-En`);
 		const  { genres }  = await response.json();
 		renderFilters(genres, filters);
+		attachFilterHandlers(filters);
 	} catch (error) {
 			return `Caught an error: ${error}`
 	} finally {
@@ -87,6 +90,7 @@ const getFilters = async () => {
 function paginate () {
 	getMovies(API_KEY, this.dataset.page);
 };
+// getting current paggination from search
 function paginateSearch(query){
 	getSearch(query, this.dataset.page);
 }
@@ -94,6 +98,22 @@ function paginateSearch(query){
 function attachPaginationHandlers(handler) {
 	const buttons = pagination.querySelectorAll('button');
 	buttons.forEach(btn => btn.addEventListener('click', handler));
+}
+
+function attachFilterHandlers(elem) {
+	const checkboxs = elem.querySelectorAll('input[type="checkbox"]');
+	checkboxs.forEach(checkbox => {
+		checkbox.addEventListener('change', ({target}) => {
+			if(target.checked) {
+				filteredGeners.push(target.value);
+				getMovies(API_KEY, `${API_DISCOVER_URL}?api_key=${API_KEY}&language=en-En&with_genres=${[...filteredGeners].join()}`);
+				return;
+			}
+			filteredGeners = filteredGeners.filter(generId => {
+				return	generId !== target.value;
+			});
+		})
+	})
 }
 // rendering UI elements
 function renderUi({ results, total_pages, page }) {
@@ -119,7 +139,7 @@ function renderPagination(page = 1, total_pages, wrapper) {
 		<span>${page}</span>
 	<button type="button" class="${ page + 1 > total_pages ? 'disabled' : '' }" data-page="${ page + 1 }"><i class="fa fa-arrow-right"></i></button>`;
 };
-
+// rendering filters
 function renderFilters(data, wrapper) {
 	wrapper.innerHTML = data.map(({id, name }) => `
 			<label for="${id}">${name}
@@ -132,5 +152,5 @@ function renderFilters(data, wrapper) {
 // Serching movies
 inputSearch.addEventListener('input', debounce(({ target: { value } }) => getSearch(value), 250));
 
-getFilters();
+getFilters(API_KEY);
 getMovies(API_KEY);

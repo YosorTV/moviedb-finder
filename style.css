@@ -6,7 +6,6 @@
 
 body {
 	font-family: 'Dosis', sans-serif;
-	font-size: 14px;
 	background: linear-gradient(to left, #07b4e2, #46c0c4, #8bcda3);
 }
 
@@ -21,7 +20,7 @@ body {
 
 .movies {
 	display: flex;
-	justify-content: center;
+	justify-content: flex-end;
 	flex-wrap: wrap;
 	align-items: flex-start;
 	width: 100%;
@@ -78,7 +77,7 @@ body {
 	white-space: nowrap;
 	cursor: pointer;
 	transition: all .5s ease;
-	font-size: 13px;
+	font-size: 16px;
 	line-height: 1.1rem;
 	border-bottom-left-radius: 20px;
 	border-bottom-right-radius: 20px;
