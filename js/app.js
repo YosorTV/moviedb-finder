@@ -162,9 +162,17 @@ function renderMovies(data, wrapper) {
 			<p class="overview">${overview}</p>
 		</section>`,
 	).join('');
+
 	const movies = wrapper.querySelectorAll('.movie');
-	movies.forEach(movie => ScrollReveal().reveal(movie, {origin:'bottom', delay: 250, easing:'ease-in-out', opacity:1, distance:'25rem', duration: 1000}))
-};
+		movies.forEach(movie => {
+			ScrollReveal().reveal(movie, {
+				origin:'bottom', 
+				delay: 500, easing:'ease-in-out', 
+				opacity:0,
+				duration: 1000
+			});
+		});
+	};
 // rendering paggination
 function renderPagination(page = 1, total_pages, wrapper) {
 	wrapper.innerHTML = `
